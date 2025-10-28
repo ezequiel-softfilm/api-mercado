@@ -1,12 +1,16 @@
 import { Router } from "express";
-import { create, excluir, findAll, findOne, update } from "../controllers/ProdutoController";
+import { ProdutoController } from "../controllers/ProdutoController";
+import { ProdutoRepository } from "../models/Produto/repositories/ProdutoRepository";
 
-const router = Router()
+const router = Router();
 
-router.get("/", findAll)
-router.get("/:id", findOne)
-router.post("/", create)
-router.put("/:id", update)
-router.delete("/:id", excluir)
+const produtoRepository = new ProdutoRepository();
+const produtoController = new ProdutoController(produtoRepository);
 
-export default router
+router.get("/", (req, res) => produtoController.findAll(req, res));
+router.get("/:id", (req, res) => produtoController.findOne(req, res));
+router.post("/", (req, res) => produtoController.create(req, res));
+router.put("/:id", (req, res) => produtoController.update(req, res));
+router.delete("/:id", (req, res) => produtoController.excluir(req, res));
+
+export default router;

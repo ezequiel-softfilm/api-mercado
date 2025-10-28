@@ -1,72 +1,85 @@
 import { Request, Response } from "express";
-import { Venda } from "../models/Venda";
-import { Produto } from "../models/Produto";
+import { IVendaRepository } from "../models/Venda/repositories/IVendaRepository";
+import { FindAllVendasUseCase } from "../models/Venda/use-cases/FindAllVendas.use-case";
+import { FindOneVendaUseCase } from "../models/Venda/use-cases/FindOneVenda.use-case";
+import { CreateVendaDto } from "../models/Venda/dto/create-venda.dto";
+import { CreateVendaUseCase } from "../models/Venda/use-cases/CreateVenda.use-case";
+import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
 
-export const findAll = async (req: Request, res: Response) =>
+export class VendaController
 {
-    try
-    {
-        const vendas = await Venda.findAll()
+    constructor(
+        private vendaRepository: IVendaRepository,
+        private produtoRepositoy: IProdutoRepository
+    ){}
 
-        res.status(200).json(
-        {
-            message: "Histórico de venda",
-            data: vendas
-        })
-    }
-    catch(error)
+    async findAll(req: Request, res: Response): Promise<Response>
     {
-        res.status(500).json(
+        try
         {
-            message: `Erro ao listar as vendas`,
-            error: error
-        })
-    }
-}
+            const useCase = new FindAllVendasUseCase(this.vendaRepository)
+            const vendas = await useCase.execute()
 
-export const create = async (req: Request, res: Response) =>
-{
-    try
-    {
-        const body = req.body as { id_produto: number; qtde: number }
-
-        if(body.qtde <= 0)
-        {
-            return res.status(400).json({ message: "A quantidade não pode ser menor ou igual a 0"})
+            return res.status(200).json(
+            {
+                message: "Lista de vendas",
+                data: vendas
+            })
         }
-
-        const produto = await Produto.findByPk(body.id_produto)
-        if (!produto) return res.status(404).json({ message: "Produto não encontrado" })
-
-        if(body.qtde > produto.qtde_estoque) 
+        catch(error: any)
         {
-            return res.status(400).json({ message: "Saldo insuficiente"})
+            return res.status(400).json({ message: error.message})
         }
-
-        const preco_unitario = produto.preco_unitario
-        const total = preco_unitario * body.qtde
-
-        const venda = await Venda.create({
-            id_produto: body.id_produto,
-            qtde: body.qtde,
-            preco_unitario,
-            total,
-        })
-
-        await produto.update({ qtde_estoque: produto.qtde_estoque - body.qtde })
-
-        res.status(201).json(
-        {
-            message: "Venda realizada com sucesso",
-            data: venda
-        })
     }
-    catch(error)
+
+    async findOne(req: Request, res: Response): Promise<Response>
     {
-        res.status(500).json(
+        try
         {
-            message: `Erro ao registrar uma venda`,
-            error: error
-        })
+            const id = Number(req.params.id)
+
+            const useCase = new FindOneVendaUseCase(this.vendaRepository)
+            const venda = await useCase.execute(id)
+
+            if(!venda) return res.status(404).json({ message: "Produto não encontrado" })
+
+            return res.status(200).json(
+            {
+                message: "Detalhe da venda",
+                data: venda
+            })
+        }
+        catch(error: any)
+        {
+            return res.status(400).json({ message: error.message})
+        }
+    }
+
+    async create(req: Request, res: Response): Promise<Response>
+    {
+        try
+        {
+            const dto = new CreateVendaDto(req.body)
+
+            if(dto.qtde <= 0) return res.status(400).json({ message: "Quantidade inválida."})
+            
+            const useCase = new CreateVendaUseCase(
+                this.vendaRepository,
+                this.produtoRepositoy
+            )
+
+            const venda = await useCase.execute(dto)
+
+            return res.status(201).json(
+            {
+                message: "Venda realizada com sucesso.",
+                data: venda
+            })
+
+        }
+        catch(error: any)
+        {
+            return res.status(400).json({ message: error.message})
+        }
     }
 }

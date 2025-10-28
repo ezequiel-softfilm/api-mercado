@@ -1,58 +1,58 @@
-import { Request, Response } from "express"
-import { EntradaEstoque } from "../models/EntradaEstoque"
-import { Produto } from "../models/Produto"
+import { Request, Response } from "express";
+import { IEntradaEstoqueRepository } from "../models/EntradaEstoque/repositories/IEntradaEstoqueRepository";
+import { FindAllEntradaEstoqueUseCase } from "../models/EntradaEstoque/use-cases/FindAllEntradaEstoque.use-case";
+import { CreateEntradaEstoqueDto } from "../models/EntradaEstoque/dto/create-entradaEstoque.dto";
+import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
+import { CreateEntradaEstoqueUseCase } from "../models/EntradaEstoque/use-cases/CreateEntradaEstoque.use-case";
 
-export const findAll = async (req: Request, res: Response) =>
+export class EntradaEstoqueController
 {
-    try
-    {
-        const entradas = await EntradaEstoque.findAll()
+    constructor(
+        private entradaEstoqueRepository: IEntradaEstoqueRepository,
+        private produtoRepository: IProdutoRepository
+    ){}
 
-        res.status(200).json({
-            message: "Listagem das entradas no estoque",
-            data: entradas
-        })
-    }
-    catch(error)
+    async findAll(req: Request, res: Response): Promise<Response>
     {
-        res.status(500).json(
+        try
         {
-            message: "Erro ao listar as entradas de estoque",
-            error: error
-        })
-    }
-}
+            const useCase = new FindAllEntradaEstoqueUseCase(this.entradaEstoqueRepository)
+            const entradas = await useCase.execute()
 
-export const create = async (req: Request, res: Response) =>
-{
-    try
-    {
-        const body = req.body as { id_produto: number; qtde: number }
-
-        if(body.qtde <= 0)
-        {
-            return res.status(400).json({ message: "A quantidade não pode ser menor ou igual a 0"})
+            return res.status(200).json(
+            {
+                message: "Lista de todas as entrdas",
+                data: entradas
+            })
         }
-
-        const produto = await Produto.findByPk(body.id_produto)
-        if (!produto) return res.status(404).json({ message: "Produto não encontrado" })
-
-        const entrada = await EntradaEstoque.create(body)
-
-        await produto.update({ qtde_estoque: produto.qtde_estoque + body.qtde })
-
-        res.status(201).json(
+        catch(error: any)
         {
-            message: "Entrada de estoque realizada com sucesso",
-            data: entrada
-        })
+            return res.status(400).json({ message: error.message })
+        }
     }
-    catch(error)
+
+    async create(req: Request, res: Response): Promise<Response>
     {
-        res.status(500).json(
+        try
         {
-            message: "Erro ao criar entradas de estoque",
-            error: error
-        })
+            const dto = new CreateEntradaEstoqueDto(req.body)
+
+            const useCase = new CreateEntradaEstoqueUseCase(
+                this.entradaEstoqueRepository,
+                this.produtoRepository
+            )
+
+            const entrada = await useCase.execute(dto)
+
+            return res.status(201).json(
+            {
+                message: "Entrada de estoque registrada com sucesso",
+                data: entrada
+            })
+        }
+        catch(error: any)
+        {
+            return res.status(400).json({ message: error.message })
+        }
     }
 }

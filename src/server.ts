@@ -1,24 +1,29 @@
-import app from './app'
-import { sequelize } from './config/database'
-import './models'
+import express from "express";
+import app from "./app";
+import { sequelize } from "./config/database";
+import './models';
 
-const PORT = process.env.PORT || 3000
+import produtosRoutes from "./routes/produtos";
+import entradaEstoqueRoutes from "./routes/entradaEstoque";
+import vendaRouter from "./routes/venda"
 
-async function startServer()
-{
-    try
-    {
-        await sequelize.authenticate()
+const PORT = process.env.PORT || 3000;
 
-        console.clear()
+app.use(express.json());
+app.use("/api/produtos", produtosRoutes);
+app.use("/api/estoque", entradaEstoqueRoutes);
+app.use("/api/vendas", vendaRouter);
 
-        console.log("Conexão com o banco de dados bem-sucedido")
+async function startServer() {
+    try {
+        await sequelize.authenticate();
 
-        app.listen(PORT, () =>
-        {
-            console.log(`Servidor rodando na porta: ${PORT}`)
-        })
+        console.clear();
+        console.log("Conexão com o banco de dados bem-sucedida");
 
+        app.listen(PORT, () => {
+            console.log(`Servidor rodando na porta: ${PORT}`);
+        });
 
         console.log(`
                         Produto
@@ -37,16 +42,15 @@ async function startServer()
 | POST   | /api/estoque/entrada   | Cria uma nova entrada e atualiza o estoque do produto |
 
                                        Venda
-| Método | Endpoint      | Descrição                                               |
-| ------ | ------------- | ------------------------------------------------------- |
-| GET    | /api/vendas   | Lista todas as vendas                                   |
-| POST   | /api/vendas   | Registra uma nova venda e atualiza o estoque do produto |
-        `)
+| Método | Endpoint          | Descrição                                               |
+| ------ | -------------     | ------------------------------------------------------- |
+| GET    | /api/vendas       | Lista todas as vendas                                   |
+| GET    | /api/vendas/:id   | Obtém venda por ID                                      |
+| POST   | /api/vendas       | Registra uma nova venda e atualiza o estoque do produto |
+        `);
+    } catch (error) {
+        console.error(`Erro ao conectar no banco de dados: ${error}`);
     }
-    catch(error)
-    {
-        console.error(`Erro ao conectar no banco de dados: ${error}`)
-    } 
 }
 
-startServer()
+startServer();

@@ -1,117 +1,122 @@
-import { Request, Response } from 'express'
-import { Produto, ProdutoEnumAtivo } from '../models/Produto'
+import { Request, Response } from "express";
+import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
+import { FindAllProdutosUseCase } from "../models/Produto/use-cases/FindAllProduto.use-case";
+import { FindOneProdutoUseCase } from "../models/Produto/use-cases/FindOneProduto.use-case";
+import { CreateProdutoDto } from "../models/Produto/dto/create-produto.dto";
+import { CreateProdutoUseCase } from "../models/Produto/use-cases/CreateProduto.use-case";
+import { UpdateProdutoUseCase } from "../models/Produto/use-cases/UpdateProduto.use-case";
+import { ExcluirProdutoUseCase } from "../models/Produto/use-cases/ExcluirProduto.use-case";
 
-export const findAll = async (req: Request, res: Response) =>
+export class ProdutoController
 {
-    try
-    {
-        const produtos = await Produto.findAll({ where: { ativo: ProdutoEnumAtivo.Ativo} })
+    constructor(private produtoRepository: IProdutoRepository){}
 
-        res.json(
+    async findAll(req: Request, res: Response): Promise<Response>
+    {
+        try
         {
-            message: "Listagem de todos os produtos",
-            data: produtos
-        })
-    }
-    catch(error)
-    {
-        res.status(500).json(
+            const useCase = new FindAllProdutosUseCase(this.produtoRepository)
+            const produtos = await useCase.execute()
+
+            return res.status(200).json(
+            {
+                message: "Lista de todos os produtos",
+                data: produtos
+            })
+        }
+        catch(error: any)
         {
-            message: `Erro ao listar os produtos`,
-            error: error
-        })
+            return res.status(400).json({ message: error.message})
+        }
     }
-}
 
-export const findOne = async (req: Request, res: Response) =>
-{
-    try
+    async findOne(req: Request, res: Response): Promise<Response>
     {
-        const produto = await Produto.findByPk(req.params.id)
-        if(!produto) return res.status(404).json({ error: "Produto não encontrado"})
-        
-        res.status(200).json(
+        try
         {
-            message: "Informações de produto",
-            data: produto
-        })
-    }
-    catch(error)
-    {
-        res.status(500).json(
+            const id = Number(req.params.id)
+
+            const useCase = new FindOneProdutoUseCase(this.produtoRepository)
+            const produto = await useCase.execute(id)
+
+            if(!produto) return res.status(404).json({ message: "Produto não encontrado."})
+
+            return res.status(200).json(
+            {
+                message: "Detalhes do produto",
+                data: produto
+            })
+        }
+        catch(error: any)
         {
-            message: `Erro ao listar o produto`,
-            error: error
-        })
+            return res.status(400).json({ message: error.message})
+        }
     }
-}
 
-export const create = async (req: Request, res: Response) =>
-{
-    try
+    async create(req: Request, res: Response): Promise<Response>
     {
-        if(req.body.qtde_estoque < 0) throw new Error("Não é possível criar produto com estoque negativo")
-
-        const produto = await Produto.create(req.body)
-
-        res.status(201).json(
+        try
         {
-            message: "Produto criado com sucesso",
-            data: produto
-        })
-    }
-    catch(error)
-    {
-        res.status(500).json(
+            const dto = new CreateProdutoDto(req.body)
+
+            if(dto.qtde_estoque < 0) return res.status(400).json({ message: "Quantidade de estoque não pode ser negativo"})
+            if(dto.preco_unitario < 0) return res.status(400).json({ message: "Preço unitário não pode ser negativo"})
+
+            const useCase = new CreateProdutoUseCase(this.produtoRepository)
+
+            const produto = await useCase.execute(dto)
+
+            return res.status(201).json(
+            {
+                message: "Produto criado com sucesso.",
+                data: produto
+            })
+        }
+        catch(error: any)
         {
-            message: "Erro ao criar produto",
-            error: error
-        })
+            return res.status(400).json({ message: error.message})
+        }
     }
-}
 
-export const update = async (req: Request, res: Response) =>
-{
-    try
+    async update(req: Request, res: Response): Promise<Response>
     {
-        const produto = await Produto.findByPk(req.params.id)
-        if(!produto) return res.status(404).json({ error: "Produto não encontrado"})
-
-        await produto?.update(req.body)
-
-        res.status(200).json(
+        try
         {
-            message: "Produto alterado com sucesso",
-            data: produto
-        })
-    }
-    catch(error)
-    {
-        res.status(500).json(
+            const id = Number(req.params.id)
+            const data = req.body
+
+            const useCase = new UpdateProdutoUseCase(this.produtoRepository)
+            const updateProduto = await useCase.execute(id, data)
+
+            if(!updateProduto) return res.status(404).json({ message: "Produto não encontrado"})
+
+            return res.status(200).json(
+            { 
+                message: "Produto alterado com sucesso."
+            })
+        }
+        catch(error: any)
         {
-            message: "Erro ao atualizar produto",
-            error: error
-        })
+            return res.status(400).json({ message: error.message })
+        }
     }
-}
 
-export const excluir = async (req: Request, res: Response) =>
-{
-    try
+    async excluir(req: Request, res: Response): Promise<Response>
     {
-        const produto = await Produto.findByPk(req.params.id)
-        if(!produto) return res.status(404).json({ error: "Produto não encontrado"})
-
-        await produto?.destroy()
-
-        res.sendStatus(204)
-    }
-    catch(error)
-    {
-        res.status(500).json(
+        try
         {
-            message: "Erro ao deletar produto",
-            error: error
-        })
+            const id = Number(req.params.id)
+
+            const useCase = new ExcluirProdutoUseCase(this.produtoRepository)
+            const excluirProduto = await useCase.execute(id)
+
+            if(!excluirProduto) return res.status(404).json({ message: "Produto não encontrado."})
+
+            return res.status(204).send()
+        }
+        catch(error: any)
+        {
+            return res.status(400).json({ message: error.message })
+        }
     }
 }
