@@ -1,6 +1,6 @@
 # API Mercado
 
-API RESTful para gerenciamento de produtos, entradas de estoque e vendas, desenvolvida em **TypeScript** com **Express** e **Sequelize ORM** conectando ao **MySQL**.
+API RESTful para gerenciamento de **produtos**, **entradas de estoque** e **vendas**, desenvolvida em **TypeScript** com **Express** e **Sequelize ORM** conectando ao **MySQL**, seguindo o padrão de **arquitetura limpa**.
 
 ---
 
@@ -21,27 +21,38 @@ API RESTful para gerenciamento de produtos, entradas de estoque e vendas, desenv
 src/
 │
 ├── config/
-│   └── database.ts          # Configuração do Sequelize e conexão com MySQL
+│   └── database.ts              # Configuração do Sequelize e conexão com MySQL
 │
 ├── controllers/
-│   ├── produtoController.ts
-│   ├── entradaEstoqueController.ts
-│   └── vendaController.ts
+│   ├── ProdutoController.ts
+│   ├── EntradaEstoqueController.ts
+│   └── VendaController.ts
 │
 ├── models/
-│   ├── Produto.ts
-│   ├── EntradaEstoque.ts
-│   ├── Venda.ts
-│   └── interface/           # Interfaces dos models
+│   ├── Produto/
+│   │   ├── entity/              # Entity Produto
+│   │   ├── repositories/        # Repositório e model Sequelize
+│   │   ├── use-cases/           # Casos de uso (Create, Update, Find, Excluir)
+│   │   └── dto/                 # DTOs de criação/atualização
+│   │
+│   ├── EntradaEstoque/
+│   │   ├── entity/              # Entity EntradaEstoque
+│   │   ├── repositories/        # Repositório e model Sequelize
+│   │   └── use-cases/           # Casos de uso (Create, FindAll)
+│   │
+│   └── Venda/
+│       ├── entity/              # Entity Venda
+│       ├── repositories/        # Repositório e model Sequelize
+│       └── use-cases/           # Casos de uso (Create, FindOne, FindAll)
 │
 ├── routes/
-│   ├── index.ts             # Roteamento principal
+│   ├── index.ts                 # Roteamento principal
 │   ├── produtos.ts
 │   ├── entradaEstoque.ts
 │   └── vendas.ts
 │
-├── app.ts                   # Configuração do Express
-└── server.ts                # Inicialização do servidor
+├── app.ts                       # Configuração do Express
+└── server.ts                    # Inicialização do servidor
 ```
 
 ---
@@ -70,8 +81,7 @@ src/
 * `id` (PK)
 * `id_produto` (FK → Produto)
 * `qtde`
-* `preco_unitario`
-* `total`
+* `total` (calculado automaticamente no UseCase)
 * Timestamps: `criado_em`, `alterado_em`, `deletado_em`
 
 ---
@@ -86,14 +96,14 @@ src/
 | GET    | /api/produtos/:id | Obtém produto por ID           |
 | POST   | /api/produtos     | Cria um novo produto           |
 | PUT    | /api/produtos/:id | Atualiza um produto existente  |
-| DELETE | /api/produtos/:id | Exclusão lógica do produto     |
+| DELETE | /api/produtos/:id | Inativa (exclusão lógica)      |
 
 ### Entrada de Estoque
 
-| Método | Endpoint             | Descrição                                             |
-| ------ | -------------------- | ----------------------------------------------------- |
-| GET    | /api/entrada-estoque | Lista todas as entradas de estoque                    |
-| POST   | /api/entrada-estoque | Cria uma nova entrada e atualiza o estoque do produto |
+| Método | Endpoint               | Descrição                                             |
+| ------ | ---------------------- | ----------------------------------------------------- |
+| GET    | /api/estoque/historico | Lista todas as entradas de estoque                    |
+| POST   | /api/estoque/entrada   | Cria uma nova entrada e atualiza o estoque do produto |
 
 Exemplo de POST:
 
@@ -106,10 +116,11 @@ Exemplo de POST:
 
 ### Vendas
 
-| Método | Endpoint    | Descrição                                          |
-| ------ | ----------- | -------------------------------------------------- |
-| GET    | /api/vendas | Lista todas as vendas                              |
-| POST   | /api/vendas | Registra uma venda e atualiza o estoque do produto |
+| Método | Endpoint        | Descrição                                          |
+| ------ | --------------- | -------------------------------------------------- |
+| GET    | /api/vendas     | Lista todas as vendas                              |
+| GET    | /api/vendas/:id | Obtém venda por ID                                 |
+| POST   | /api/vendas     | Registra uma venda e atualiza o estoque do produto |
 
 Exemplo de POST:
 
@@ -171,13 +182,14 @@ O servidor estará disponível em `http://localhost:3000`.
 
 ## Observações
 
-* Exclusão de produtos, vendas e entradas é **lógica**, usando `deletedAt`.
+* Exclusão de produtos, vendas e entradas é **lógica** (exclusão suave com `deletedAt`).
 * Ao registrar uma venda, o **estoque do produto é automaticamente reduzido**.
 * Ao registrar uma entrada de estoque, o **estoque do produto é automaticamente incrementado**.
+* O **total** da venda é calculado automaticamente no **UseCase**, não é enviado pelo cliente.
 
 ---
 
 ## Autor
 
 Ezequiel Farias
-[GitHub](https://github.com/ezequiel-softfilm)")
+[GitHub](https://github.com/ezequiel-softfilm)
