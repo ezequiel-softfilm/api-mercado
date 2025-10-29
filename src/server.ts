@@ -5,14 +5,18 @@ import './models';
 
 import produtosRoutes from "./routes/produtos";
 import entradaEstoqueRoutes from "./routes/entradaEstoque";
-import vendaRouter from "./routes/venda"
+import vendaRoutes from "./routes/venda"
+import usuarioRoutes from "./routes/usuario"
+import authRoutes from './routes/auth'
 
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use("/api/produtos", produtosRoutes);
-app.use("/api/estoque", entradaEstoqueRoutes);
-app.use("/api/vendas", vendaRouter);
+app.use("/api/produtos", produtosRoutes)
+app.use("/api/estoque", entradaEstoqueRoutes)
+app.use("/api/vendas", vendaRoutes)
+app.use("/api/usuarios", usuarioRoutes)
+app.use("/api/auth", authRoutes)
 
 async function startServer() {
     try {
@@ -26,7 +30,9 @@ async function startServer() {
         });
 
         console.log(`
-                        Produto
+====================================================================
+📦 PRODUTO (JWT)
+--------------------------------------------------------------------
 | Método | Endpoint            | Descrição                      |
 | ------ | ------------------- | ------------------------------ |
 | GET    | /api/produtos       | Lista todos os produtos ativos |
@@ -35,19 +41,41 @@ async function startServer() {
 | PUT    | /api/produtos/:id   | Atualiza um produto existente  |
 | DELETE | /api/produtos/:id   | Exclui logicamente um produto  |
 
-                                      Entrada Estoque
+====================================================================
+📥 ENTRADA DE ESTOQUE (JWT)
+--------------------------------------------------------------------
 | Método | Endpoint               | Descrição                                             |
 | ------ | ---------------------- | ----------------------------------------------------- |
 | GET    | /api/estoque/historico | Lista todas as entradas de estoque                    |
 | POST   | /api/estoque/entrada   | Cria uma nova entrada e atualiza o estoque do produto |
 
-                                       Venda
+====================================================================
+💰 VENDA (JWT)
+--------------------------------------------------------------------
 | Método | Endpoint          | Descrição                                               |
-| ------ | -------------     | ------------------------------------------------------- |
+| ------ | ----------------- | ------------------------------------------------------- |
 | GET    | /api/vendas       | Lista todas as vendas                                   |
 | GET    | /api/vendas/:id   | Obtém venda por ID                                      |
 | POST   | /api/vendas       | Registra uma nova venda e atualiza o estoque do produto |
-        `);
+
+====================================================================
+👤 USUÁRIO
+--------------------------------------------------------------------
+| Método | Endpoint                  | Descrição                       |
+| ------ | -------------------------- | -------------------------------- |
+| GET    | /api/usuarios              | Lista todos os usuários          |
+| GET    | /api/usuarios/:id          | Obtém usuário por ID             |
+| GET    | /api/usuarios/email/:email | Obtém usuário por e-mail         |
+| POST   | /api/usuarios              | Cria um novo usuário             |
+====================================================================
+====================================================================
+👤 Auth
+--------------------------------------------------------------------
+| Método | Endpoint    | Descrição              |
+| ------ | ----------- | ---------------------- |
+| POST   | /api/auth   | Login de usuário (JWT) |
+====================================================================
+        `)
     } catch (error) {
         console.error(`Erro ao conectar no banco de dados: ${error}`);
     }

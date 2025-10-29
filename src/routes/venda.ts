@@ -2,8 +2,11 @@ import { Router } from "express"
 import { VendaRepository } from "../models/Venda/repositories/VendaRepository"
 import { VendaController } from "../controllers/VendaController"
 import { ProdutoRepository } from "../models/Produto/repositories/ProdutoRepository"
+import { authMiddleware } from "../middlewares/authMiddleware"
 
 const router = Router()
+
+router.use(authMiddleware)
 
 const vendaRepository = new VendaRepository()
 const produtoRepository = new ProdutoRepository()

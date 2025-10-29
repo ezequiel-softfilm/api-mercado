@@ -8,6 +8,7 @@ export interface VendaModelAttributes
     id_produto: number
     qtde: number
     total?: number
+    criado_por?: number
     criado_em?: Date
     alterado_em?: Date 
     deletado_em?: Date | null
@@ -19,6 +20,7 @@ export class VendaModel extends Model<VendaModelAttributes> implements VendaMode
     public id_produto!: number
     public qtde!: number
     public total!: number
+    public criado_por!: number
     public readonly criado_em!: Date
     public readonly alterado_em!: Date
     public readonly deletado_em!: Date | null
@@ -58,6 +60,13 @@ VendaModel.init(
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0
+        },
+        criado_por: 
+        {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+            references: { model: "usuarios", key: "id" },
+            onDelete: "RESTRICT"
         }
     },
     {

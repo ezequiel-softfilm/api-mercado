@@ -1,6 +1,6 @@
 # API Mercado
 
-API RESTful para gerenciamento de **produtos**, **entradas de estoque** e **vendas**, desenvolvida em **TypeScript** com **Express** e **Sequelize ORM** conectando ao **MySQL**, seguindo o padrão de **arquitetura limpa**.
+API RESTful para gerenciamento de **produtos**, **entradas de estoque**, **vendas** e **usuários**, desenvolvida em **TypeScript** com **Express** e **Sequelize ORM** conectando ao **MySQL**, seguindo o padrão de **arquitetura limpa**. Inclui autenticação **JWT**, protegendo todas as rotas exceto login e usuarios.
 
 ---
 
@@ -12,6 +12,8 @@ API RESTful para gerenciamento de **produtos**, **entradas de estoque** e **vend
 * Sequelize ORM
 * MySQL
 * dotenv
+* bcrypt
+* jsonwebtoken
 
 ---
 
@@ -21,38 +23,59 @@ API RESTful para gerenciamento de **produtos**, **entradas de estoque** e **vend
 src/
 │
 ├── config/
-│   └── database.ts              # Configuração do Sequelize e conexão com MySQL
+│   └── database.ts                  # Configuração do Sequelize e conexão com MySQL
 │
 ├── controllers/
 │   ├── ProdutoController.ts
 │   ├── EntradaEstoqueController.ts
-│   └── VendaController.ts
+│   ├── VendaController.ts
+│   ├── UsuarioController.ts
+│   └── AuthController.ts
+│
+├── middlewares/
+│   └── authMiddleware.ts            # Middleware para proteger rotas com JWT
 │
 ├── models/
 │   ├── Produto/
-│   │   ├── entity/              # Entity Produto
-│   │   ├── repositories/        # Repositório e model Sequelize
-│   │   ├── use-cases/           # Casos de uso (Create, Update, Find, Excluir)
-│   │   └── dto/                 # DTOs de criação/atualização
+│   │   ├── entity/
+│   │   ├── repositories/
+│   │   ├── use-cases/
+│   │   └── dto/
 │   │
 │   ├── EntradaEstoque/
-│   │   ├── entity/              # Entity EntradaEstoque
-│   │   ├── repositories/        # Repositório e model Sequelize
-│   │   └── use-cases/           # Casos de uso (Create, FindAll)
+│   │   ├── entity/
+│   │   ├── repositories/
+│   │   └── use-cases/
 │   │
-│   └── Venda/
-│       ├── entity/              # Entity Venda
-│       ├── repositories/        # Repositório e model Sequelize
-│       └── use-cases/           # Casos de uso (Create, FindOne, FindAll)
+│   ├── Venda/
+│   │   ├── entity/
+│   │   ├── repositories/
+│   │   └── use-cases/
+│   │
+│   ├── Usuario/
+│   │   ├── entity/
+│   │   ├── repositories/
+│   │   ├── use-cases/
+│   │   └── dto/
+│   │
+│   └── Auth/
+│       ├── dto/
+│       │   └── login-usuario.dto.ts
+│       ├── use-cases/
+│       │   └── LoginUsuario.use-case.ts
+│       └── services/
+│           └── JwtService.ts
 │
 ├── routes/
-│   ├── index.ts                 # Roteamento principal
+│   ├── index.ts
 │   ├── produtos.ts
 │   ├── entradaEstoque.ts
-│   └── vendas.ts
+│   ├── vendas.ts
+│   ├── usuario.ts
+│   └── auth.ts
 │
-├── app.ts                       # Configuração do Express
-└── server.ts                    # Inicialização do servidor
+├── app.ts
+└── server.ts
 ```
 
 ---
@@ -67,13 +90,15 @@ src/
 * `preco_unitario`
 * `qtde_estoque`
 * `ativo` (Ativo/Inativo)
-* Timestamps: `criado_em`, `alterado_em`, `deletado_em` (exclusão lógica)
+* `criado_por` (FK → Usuario)
+* Timestamps: `criado_em`, `alterado_em`, `deletado_em`
 
 ### EntradaEstoque
 
 * `id` (PK)
 * `id_produto` (FK → Produto)
 * `qtde`
+* `criado_por` (FK → Usuario)
 * Timestamps: `criado_em`, `alterado_em`, `deletado_em`
 
 ### Venda
@@ -82,11 +107,36 @@ src/
 * `id_produto` (FK → Produto)
 * `qtde`
 * `total` (calculado automaticamente no UseCase)
+* `criado_por` (FK → Usuario)
+* Timestamps: `criado_em`, `alterado_em`, `deletado_em`
+
+### Usuario
+
+* `id` (PK)
+* `nome`
+* `email`
+* `password` (hash com bcrypt)
+* `status` (Ativo/Inativo)
 * Timestamps: `criado_em`, `alterado_em`, `deletado_em`
 
 ---
 
 ## Rotas
+
+### Auth
+
+| Método | Endpoint  | Descrição              |
+| ------ | --------- | ---------------------- |
+| POST   | /api/auth | Login de usuário (JWT) |
+
+### Usuário
+
+| Método | Endpoint            | Descrição                     |
+| ------ | ------------------- | ----------------------------- |
+| GET    | /api/usuario        | Lista todos os usuários       |
+| GET    | /api/usuario/:id    | Detalhes de usuário por ID    |
+| GET    | /api/usuario/:email | Detalhes de usuário por email |
+| POST   | /api/usuario        | Cria um novo usuário          |
 
 ### Produtos
 
@@ -133,13 +183,14 @@ Exemplo de POST:
 
 ---
 
-## Relacionamentos entre tabelas
+## Observações
 
-| Tabela         | Relação                       |
-| -------------- | ----------------------------- |
-| Produto        | 1:N EntradaEstoque, 1:N Venda |
-| EntradaEstoque | N:1 Produto                   |
-| Venda          | N:1 Produto                   |
+* Exclusão de produtos, vendas, entradas e usuários é **lógica** (`deletedAt`).
+* Ao registrar uma venda, o **estoque do produto é automaticamente reduzido**.
+* Ao registrar uma entrada de estoque, o **estoque do produto é automaticamente incrementado**.
+* O **total** da venda é calculado automaticamente no **UseCase**, não é enviado pelo cliente.
+* Todas as rotas estão protegidas por **JWT**, exceto `/api/auth` (login) e `/api/usuarios` (usuarios) .
+* O `criado_por` de produtos, entradas e vendas é preenchido automaticamente com o **ID do usuário logado**.
 
 ---
 
@@ -158,7 +209,7 @@ cd api-mercado
 npm install
 ```
 
-3. Configure o arquivo `.env` com suas credenciais do MySQL:
+3. Configure o arquivo `.env` com suas credenciais do MySQL e a chave JWT:
 
 ```
 DB_NAME=nome_do_banco
@@ -166,6 +217,7 @@ DB_USER=usuario
 DB_PASS=senha
 DB_HOST=localhost
 PORT=3000
+JWT_SECRET=sua_chave_secreta
 ```
 
 ---
@@ -177,15 +229,6 @@ npm run dev
 ```
 
 O servidor estará disponível em `http://localhost:3000`.
-
----
-
-## Observações
-
-* Exclusão de produtos, vendas e entradas é **lógica** (exclusão suave com `deletedAt`).
-* Ao registrar uma venda, o **estoque do produto é automaticamente reduzido**.
-* Ao registrar uma entrada de estoque, o **estoque do produto é automaticamente incrementado**.
-* O **total** da venda é calculado automaticamente no **UseCase**, não é enviado pelo cliente.
 
 ---
 

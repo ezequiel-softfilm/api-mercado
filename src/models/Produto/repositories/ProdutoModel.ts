@@ -10,6 +10,7 @@ export interface ProdutoModelAttributes
     preco_unitario: number
     qtde_estoque: number
     ativo: ProdutoEnumAtivo
+    criado_por?: number
     criado_em?: Date
     alterado_em?: Date
     deletado_em?: Date | null
@@ -23,6 +24,7 @@ export class ProdutoModel extends Model<ProdutoModelAttributes> implements Produ
     public preco_unitario!: number
     public qtde_estoque!: number
     public ativo!: ProdutoEnumAtivo
+    public criado_por!: number
     public readonly criado_em!: Date
     public readonly alterado_em!: Date
     public readonly deletado_em!: Date | null
@@ -60,6 +62,13 @@ ProdutoModel.init(
             type: DataTypes.ENUM(...Object.values(ProdutoEnumAtivo)),
             defaultValue: ProdutoEnumAtivo.Ativo,
         },
+        criado_por: 
+        {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+            references: { model: "usuarios", key: "id" },
+            onDelete: "RESTRICT"
+        }
     },
     {
         sequelize,

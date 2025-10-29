@@ -6,6 +6,7 @@ import { CreateProdutoDto } from "../models/Produto/dto/create-produto.dto";
 import { CreateProdutoUseCase } from "../models/Produto/use-cases/CreateProduto.use-case";
 import { UpdateProdutoUseCase } from "../models/Produto/use-cases/UpdateProduto.use-case";
 import { ExcluirProdutoUseCase } from "../models/Produto/use-cases/ExcluirProduto.use-case";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 export class ProdutoController
 {
@@ -53,18 +54,19 @@ export class ProdutoController
         }
     }
 
-    async create(req: Request, res: Response): Promise<Response>
+    async create(req: AuthRequest, res: Response): Promise<Response>
     {
         try
         {
             const dto = new CreateProdutoDto(req.body)
+            const criado_por = Number(req.usuarioId)
 
             if(dto.qtde_estoque < 0) return res.status(400).json({ message: "Quantidade de estoque não pode ser negativo"})
             if(dto.preco_unitario < 0) return res.status(400).json({ message: "Preço unitário não pode ser negativo"})
 
             const useCase = new CreateProdutoUseCase(this.produtoRepository)
 
-            const produto = await useCase.execute(dto)
+            const produto = await useCase.execute(dto, criado_por)
 
             return res.status(201).json(
             {

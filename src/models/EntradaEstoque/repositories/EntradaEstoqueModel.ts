@@ -7,6 +7,7 @@ export interface EntradaEstoqueModelAttributes
     id?: number
     id_produto: number
     qtde: number
+    criado_por?: number
     criado_em?: Date
     alterado_em?: Date
     deletado_em?: Date | null
@@ -17,6 +18,7 @@ export class EntradaEstoqueModel extends Model<EntradaEstoqueModelAttributes> im
     public id!: number
     public id_produto!: number
     public qtde!: number
+    public criado_por!: number
     public readonly criado_em!: Date
     public readonly alterado_em!: Date
     public readonly deletado_em!: Date | null
@@ -49,6 +51,13 @@ EntradaEstoqueModel.init(
             {
                 min: 1
             }
+        },
+        criado_por: 
+        {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: true,
+            references: { model: "usuarios", key: "id" },
+            onDelete: "RESTRICT"
         }
     },
     {
