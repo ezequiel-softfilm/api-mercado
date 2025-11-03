@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize"
-import { UsuarioEnumStatus } from "../entity/Usuario"
+import { UsuarioEnumStatus, UsuarioEnumTipo } from "../entity/Usuario"
 import { sequelize } from "../../../config/database"
 import { ProdutoModel } from "../../Produto/repositories/ProdutoModel"
 import { EntradaEstoqueModel } from "../../EntradaEstoque/repositories/EntradaEstoqueModel"
@@ -12,6 +12,7 @@ export interface UsuarioModelAttributes
     email: string
     password: string
     status: UsuarioEnumStatus
+    tipo: UsuarioEnumTipo
     criado_em?: Date
     alterado_em?: Date
     deletado_em?: Date | null
@@ -24,6 +25,7 @@ export class UsuarioModel extends Model<UsuarioModelAttributes> implements Usuar
     public email!: string
     public password!: string
     public status!: UsuarioEnumStatus
+    public tipo!: UsuarioEnumTipo
     public readonly criado_em!: Date
     public readonly alterado_em!: Date
     public readonly deletado_em!: Date | null
@@ -61,6 +63,11 @@ UsuarioModel.init(
         {
             type: DataTypes.ENUM(...Object.values(UsuarioEnumStatus)),
             defaultValue: UsuarioEnumStatus.Ativo
+        },
+        tipo:
+        {
+            type: DataTypes.ENUM(...Object.values(UsuarioEnumTipo)),
+            defaultValue: UsuarioEnumTipo.Visualizador
         }
     },
     {
@@ -70,42 +77,54 @@ UsuarioModel.init(
         paranoid: true,
         createdAt: "criado_em",
         updatedAt: "alterado_em",
-        deletedAt: "deletado_em"
+        deletedAt: "deletado_em",
+        indexes: [
+            {
+                unique: true,
+                fields: ["email"]
+            }
+        ]
     }
 )
 
 ProdutoModel.belongsTo(UsuarioModel,
 {
     foreignKey: "criado_por",
-    as: "usuario_criador"
+    as: "usuario_criador",
+    constraints: true
 })
 
-UsuarioModel.hasMany(ProdutoModel,
-{
-    foreignKey: "criado_por",
-    as: "produtos_criados"
-})
+// UsuarioModel.hasMany(ProdutoModel,
+// {
+//     foreignKey: "criado_por",
+//     as: "produtos_criados",
+//     constraints: false
+// })
 
 EntradaEstoqueModel.belongsTo(UsuarioModel, 
 { 
     foreignKey: "criado_por", 
-    as: "usuario_criador" 
+    as: "usuario_criador",
+    constraints: true
 })
 
-UsuarioModel.hasMany(EntradaEstoqueModel, 
-{ 
-    foreignKey: "criado_por", 
-    as: "entradas_criadas" 
-})
+// UsuarioModel.hasMany(EntradaEstoqueModel, 
+// { 
+//     foreignKey: "criado_por", 
+//     as: "entradas_criadas",
+//     constraints: false
+// })
 
 VendaModel.belongsTo(UsuarioModel, 
 { 
     foreignKey: "criado_por", 
-    as: "usuario_criador" 
+    as: "usuario_criador",
+    constraints: true
 })
 
-UsuarioModel.hasMany(VendaModel, 
-{ 
-    foreignKey: "criado_por", 
-    as: "vendas_criadas" 
-})
+// UsuarioModel.hasMany(VendaModel, 
+// { 
+//     foreignKey: "criado_por", 
+//     as: "vendas_criadas",
+//     constraints: false
+// })

@@ -36,7 +36,8 @@ export class UsuarioRepository implements IUsuarioRepository
             nome: usuario.nome,
             email: usuario.email,
             password: usuario.password,
-            status: usuario.status
+            status: usuario.status,
+            tipo: usuario.tipo
         })
 
         return newUsuario

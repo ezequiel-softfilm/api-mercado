@@ -59,14 +59,15 @@ export class ProdutoController
         try
         {
             const dto = new CreateProdutoDto(req.body)
-            const criado_por = Number(req.usuarioId)
+            dto.criado_por = Number(req.usuarioId)
 
             if(dto.qtde_estoque < 0) return res.status(400).json({ message: "Quantidade de estoque não pode ser negativo"})
+            if(!dto.preco_unitario) return res.status(400).json({ message: "Preço unitário é obrigatório"})
             if(dto.preco_unitario < 0) return res.status(400).json({ message: "Preço unitário não pode ser negativo"})
 
             const useCase = new CreateProdutoUseCase(this.produtoRepository)
 
-            const produto = await useCase.execute(dto, criado_por)
+            const produto = await useCase.execute(dto)
 
             return res.status(201).json(
             {

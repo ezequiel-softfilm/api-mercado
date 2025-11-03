@@ -7,6 +7,6 @@ const router = Router()
 const usuarioRepository = new UsuarioRepository()
 const usuarioController = new AuthController(usuarioRepository)
 
-router.post("/login", (req, res) => usuarioController.login(req, res))
+router.post("/", (req, res) => usuarioController.login(req, res))
 
 export default router

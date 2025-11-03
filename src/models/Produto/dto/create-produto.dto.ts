@@ -4,6 +4,7 @@ export class CreateProdutoDto
     descricao?: string
     preco_unitario: number
     qtde_estoque: number
+    criado_por?: number
 
     constructor(data:
     {
@@ -11,11 +12,13 @@ export class CreateProdutoDto
         descricao?: string
         preco_unitario: number
         qtde_estoque: number
+        criado_por?: number
     })
     {
         this.nome = data.nome
         this.descricao = data.descricao
         this.preco_unitario = data.preco_unitario
         this.qtde_estoque = data.qtde_estoque
+        this.criado_por = data.criado_por
     }
 }

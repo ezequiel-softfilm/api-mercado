@@ -1,4 +1,4 @@
-import { UsuarioEnumStatus } from "../entity/Usuario"
+import { UsuarioEnumStatus, UsuarioEnumTipo } from "../entity/Usuario"
 
 export class CreateUsuarioDto
 {
@@ -6,6 +6,7 @@ export class CreateUsuarioDto
     email: string
     password: string
     status?: UsuarioEnumStatus
+    tipo?: UsuarioEnumTipo
 
     constructor(data:
     {
@@ -13,11 +14,13 @@ export class CreateUsuarioDto
         email: string
         password: string
         status?: UsuarioEnumStatus
+        tipo?: UsuarioEnumTipo
     })
     {
         this.nome = data.nome
         this.email = data.email
         this.password = data.password
         this.status = data.status
+        this.tipo = data.tipo
     }
 }

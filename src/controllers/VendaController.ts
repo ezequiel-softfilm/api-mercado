@@ -5,6 +5,7 @@ import { FindOneVendaUseCase } from "../models/Venda/use-cases/FindOneVenda.use-
 import { CreateVendaDto } from "../models/Venda/dto/create-venda.dto";
 import { CreateVendaUseCase } from "../models/Venda/use-cases/CreateVenda.use-case";
 import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 export class VendaController
 {
@@ -55,11 +56,12 @@ export class VendaController
         }
     }
 
-    async create(req: Request, res: Response): Promise<Response>
+    async create(req: AuthRequest, res: Response): Promise<Response>
     {
         try
         {
             const dto = new CreateVendaDto(req.body)
+            dto.criado_por = Number(req.usuarioId)
 
             if(dto.qtde <= 0) return res.status(400).json({ message: "Quantidade inválida."})
             

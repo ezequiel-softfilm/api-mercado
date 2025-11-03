@@ -16,7 +16,8 @@ export class EntradaEstoqueRepository implements IEntradaEstoqueRepository
         const newEntrada = await EntradaEstoqueModel.create(
         {
             id_produto: entradaEstoque.id_produto,
-            qtde: entradaEstoque.qtde
+            qtde: entradaEstoque.qtde,
+            criado_por: entradaEstoque.criado_por
         })
 
         return newEntrada

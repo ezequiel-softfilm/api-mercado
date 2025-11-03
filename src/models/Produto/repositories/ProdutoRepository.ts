@@ -29,6 +29,7 @@ export class ProdutoRepository implements IProdutoRepository
             preco_unitario: produto.preco_unitario,
             qtde_estoque: produto.qtde_estoque,
             ativo: produto.ativo,
+            criado_por: produto.criado_por
         })
 
         return newProduto

@@ -4,6 +4,7 @@ import { FindAllEntradaEstoqueUseCase } from "../models/EntradaEstoque/use-cases
 import { CreateEntradaEstoqueDto } from "../models/EntradaEstoque/dto/create-entradaEstoque.dto";
 import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
 import { CreateEntradaEstoqueUseCase } from "../models/EntradaEstoque/use-cases/CreateEntradaEstoque.use-case";
+import { AuthRequest } from "../middlewares/authMiddleware";
 
 export class EntradaEstoqueController
 {
@@ -31,11 +32,12 @@ export class EntradaEstoqueController
         }
     }
 
-    async create(req: Request, res: Response): Promise<Response>
+    async create(req: AuthRequest, res: Response): Promise<Response>
     {
         try
         {
             const dto = new CreateEntradaEstoqueDto(req.body)
+            dto.criado_por = Number(req.usuarioId)
 
             const useCase = new CreateEntradaEstoqueUseCase(
                 this.entradaEstoqueRepository,

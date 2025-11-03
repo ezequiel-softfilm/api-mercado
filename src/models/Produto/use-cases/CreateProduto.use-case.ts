@@ -6,7 +6,7 @@ export class CreateProdutoUseCase
 {
     constructor(private produtoRepository: IProdutoRepository){}
 
-    async execute(dto: CreateProdutoDto, criado_por: number): Promise<Produto>
+    async execute(dto: CreateProdutoDto): Promise<Produto>
     {
         const produto = new Produto(
         {
@@ -14,9 +14,9 @@ export class CreateProdutoUseCase
             descricao: dto.descricao,
             preco_unitario: dto.preco_unitario,
             qtde_estoque: dto.qtde_estoque,
-            criado_por: criado_por
+            criado_por: dto.criado_por
         });
-
+        
         const newProduto = await this.produtoRepository.create(produto)
 
         return newProduto

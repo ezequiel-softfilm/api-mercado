@@ -26,7 +26,8 @@ export class VendaRepository implements IVendaRepository
         {
             id_produto: venda.id_produto,
             qtde: venda.qtde,
-            total: venda.total
+            total: venda.total,
+            criado_por: venda.criado_por
         })
 
         return newVenda

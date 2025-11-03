@@ -4,6 +4,7 @@ export class EntradaEstoque
     public id_produto: number
     public qtde: number
     public criado_em?: Date
+    public criado_por?: number
     public alterado_em?: Date 
     public deletado_em?: Date | null
 
@@ -12,6 +13,7 @@ export class EntradaEstoque
         id_produto: number
         qtde: number
         criado_em?: Date
+        criado_por?: number
         alterado_em?: Date
         deletado_em?: Date | null
     }, id?: number)
@@ -21,6 +23,7 @@ export class EntradaEstoque
 
         this.id_produto = props.id_produto
         this.qtde = props.qtde
+        this.criado_por = props.criado_por
 
         if(id) this.id = id
     }

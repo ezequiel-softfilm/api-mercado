@@ -73,9 +73,11 @@ EntradaEstoqueModel.init(
 
 EntradaEstoqueModel.belongsTo(ProdutoModel, {
     foreignKey: "id_produto",
-    as: "produto"
+    as: "produto",
+    constraints: true
 })
-ProdutoModel.hasMany(EntradaEstoqueModel, {
-    foreignKey: "id_produto",
-    as: "entradas"
-})
+// ProdutoModel.hasMany(EntradaEstoqueModel, {
+//     foreignKey: "id_produto",
+//     as: "entradas",
+//     constraints: false
+// })

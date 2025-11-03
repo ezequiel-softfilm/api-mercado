@@ -1,5 +1,5 @@
 import { CreateUsuarioDto } from "../dto/create-usuario.dto";
-import { Usuario, UsuarioEnumStatus } from "../entity/Usuario";
+import { Usuario, UsuarioEnumStatus, UsuarioEnumTipo } from "../entity/Usuario";
 import { IUsuarioRepository } from "../repositories/IUsuarioRepository";
 import bcrypt from "bcrypt"
 
@@ -20,7 +20,8 @@ export class CreateUsuarioUseCase
             nome: dto.nome,
             email: dto.email,
             password: hashedPassword,
-            status: dto.status || UsuarioEnumStatus.Ativo
+            status: dto.status || UsuarioEnumStatus.Ativo,
+            tipo: dto.tipo || UsuarioEnumTipo.Visualizador
         })
 
         const newUsuario = await this.usuarioRepository.create(usuario)

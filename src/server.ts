@@ -8,6 +8,7 @@ import entradaEstoqueRoutes from "./routes/entradaEstoque";
 import vendaRoutes from "./routes/venda"
 import usuarioRoutes from "./routes/usuario"
 import authRoutes from './routes/auth'
+import categoriaRoutes from './routes/categorias'
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,6 +18,7 @@ app.use("/api/estoque", entradaEstoqueRoutes)
 app.use("/api/vendas", vendaRoutes)
 app.use("/api/usuarios", usuarioRoutes)
 app.use("/api/auth", authRoutes)
+app.use("/api/categorias", categoriaRoutes)
 
 async function startServer() {
     try {
