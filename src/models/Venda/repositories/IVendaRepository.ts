@@ -2,10 +2,13 @@ import { Venda } from "../entity/Venda";
 
 export interface IVendaRepository
 {
+    /**
+     * Listar todas as vendas
+     */
     findAll(): Promise<Venda[]>
 
     /**
-     * Busca venda de um produto
+     * Busca detalhes da venda
      * @param id
      */
     findOne(id: number): Promise<Venda | null>

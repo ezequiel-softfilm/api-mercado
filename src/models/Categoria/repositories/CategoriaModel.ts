@@ -67,17 +67,3 @@ CategoriaModel.init(
         deletedAt: "deletado_em"
     }
 )
-
-CategoriaModel.belongsTo(UsuarioModel,
-{
-    foreignKey: "criado_por",
-    as: "usuario_criador",
-    constraints: true
-})
-
-// UsuarioModel.hasMany(CategoriaModel,
-// {
-//     foreignKey: "criado_por",
-//     as: "categorias_criadas",
-//     constraints: false
-// })

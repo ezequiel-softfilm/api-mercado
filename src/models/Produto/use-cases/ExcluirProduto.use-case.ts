@@ -10,7 +10,7 @@ export class ExcluirProdutoUseCase
         const produto = await this.produtoRepository.findOne(id)
         if (!produto) return false
 
-        const atualizado = await this.produtoRepository.update(id,
+        await this.produtoRepository.update(id,
         {
             ativo: ProdutoEnumAtivo.Inativo
         })

@@ -14,14 +14,14 @@ export class CreateVendaUseCase
     {
         const produto = await this.produtoRepository.findOne(dto.id_produto)
         if(!produto) throw new Error("Produto não encontrado.")
-        if(produto.qtde_estoque < dto.qtde) throw new Error("Saldo insuficiente.")
+        if(produto.estoque_atual < dto.qtde) throw new Error("Saldo insuficiente.")
         
         const venda = new Venda(dto)
-        venda.total = dto.qtde * produto.preco_unitario
+        venda.total = dto.qtde * produto.preco_venda
         const newVenda = await this.vendaRepository.create(venda)
         
-        const novoEstoque = produto.qtde_estoque - dto.qtde
-        await this.produtoRepository.update(dto.id_produto, { qtde_estoque: novoEstoque })
+        const novoEstoque = produto.estoque_atual - dto.qtde
+        await this.produtoRepository.update(dto.id_produto, { estoque_atual: novoEstoque })
 
         return newVenda
     }

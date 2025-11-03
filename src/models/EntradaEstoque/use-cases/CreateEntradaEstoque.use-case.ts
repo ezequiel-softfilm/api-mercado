@@ -15,7 +15,6 @@ export class CreateEntradaEstoqueUseCase
         const produto = await this.produtoRepository.findOne(dto.id_produto)
         if(!produto) throw new Error("Produto não encontrado.")
 
-
         const entrada = new EntradaEstoque(
         {
             id_produto: dto.id_produto,
@@ -24,8 +23,8 @@ export class CreateEntradaEstoqueUseCase
         })
         const newEntrada = await this.entradaEstoqueRepository.create(entrada)
 
-        const novoEstoque = produto.qtde_estoque + dto.qtde
-        await this.produtoRepository.update(dto.id_produto, { qtde_estoque: novoEstoque })
+        const novoEstoque = produto.estoque_atual + dto.qtde
+        await this.produtoRepository.update(dto.id_produto, { estoque_atual: novoEstoque })
 
         return newEntrada
     }

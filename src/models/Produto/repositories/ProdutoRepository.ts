@@ -26,8 +26,12 @@ export class ProdutoRepository implements IProdutoRepository
         {
             nome: produto.nome,
             descricao: produto.descricao,
-            preco_unitario: produto.preco_unitario,
-            qtde_estoque: produto.qtde_estoque,
+            codigo_barras: produto.codigo_barras,
+            preco_custo: produto.preco_custo,
+            preco_venda: produto.preco_venda,
+            estoque_atual: produto.estoque_atual,
+            estoque_minimo: produto.estoque_minimo,
+            id_categoria: produto.id_categoria,
             ativo: produto.ativo,
             criado_por: produto.criado_por
         })

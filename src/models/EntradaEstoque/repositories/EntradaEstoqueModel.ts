@@ -70,14 +70,3 @@ EntradaEstoqueModel.init(
         deletedAt: "deletado_em"
     }
 )
-
-EntradaEstoqueModel.belongsTo(ProdutoModel, {
-    foreignKey: "id_produto",
-    as: "produto",
-    constraints: true
-})
-// ProdutoModel.hasMany(EntradaEstoqueModel, {
-//     foreignKey: "id_produto",
-//     as: "entradas",
-//     constraints: false
-// })

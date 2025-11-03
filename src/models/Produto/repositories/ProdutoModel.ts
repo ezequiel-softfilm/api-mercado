@@ -1,14 +1,19 @@
 import { DataTypes, Model } from "sequelize"
 import { sequelize } from "../../../config/database"
 import { ProdutoEnumAtivo } from "../entity/Produto"
+import { CategoriaModel } from "../../Categoria/repositories/CategoriaModel"
 
 export interface ProdutoModelAttributes
 {
     id?: number
     nome: string
     descricao?: string
-    preco_unitario: number
-    qtde_estoque: number
+    codigo_barras: string
+    preco_custo: number
+    preco_venda: number
+    estoque_atual: number
+    estoque_minimo: number
+    id_categoria: number
     ativo: ProdutoEnumAtivo
     criado_por?: number
     criado_em?: Date
@@ -21,8 +26,12 @@ export class ProdutoModel extends Model<ProdutoModelAttributes> implements Produ
     public id!: number
     public nome!: string
     public descricao?: string
-    public preco_unitario!: number
-    public qtde_estoque!: number
+    public codigo_barras!: string
+    public preco_custo!: number
+    public preco_venda!: number
+    public estoque_atual!: number
+    public estoque_minimo!: number
+    public id_categoria!: number
     public ativo!: ProdutoEnumAtivo
     public criado_por!: number
     public readonly criado_em!: Date
@@ -47,15 +56,36 @@ ProdutoModel.init(
         {
             type: DataTypes.STRING,
         },
-        preco_unitario:
+        codigo_barras:
+        {
+            type: DataTypes.STRING,
+        },
+        preco_custo:
         {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
-        qtde_estoque:
+        preco_venda:
+        {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+        },
+        estoque_atual:
         {
             type: DataTypes.INTEGER,
             allowNull: false,
+        },
+        estoque_minimo:
+        {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        id_categoria:
+        {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+            references: { model: "categorias", key: "id"},
+            onDelete: "RESTRICT"
         },
         ativo:
         {

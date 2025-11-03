@@ -80,11 +80,6 @@ VendaModel.init(
     }
 )
 
-VendaModel.belongsTo(ProdutoModel, {
-    foreignKey: "id_produto",
-    as: "produto",
-    constraints: true
-})
 // ProdutoModel.hasMany(VendaModel, {
 //     foreignKey: "id_produto",
 //     as: "vendas",

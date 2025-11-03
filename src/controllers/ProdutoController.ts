@@ -7,10 +7,14 @@ import { CreateProdutoUseCase } from "../models/Produto/use-cases/CreateProduto.
 import { UpdateProdutoUseCase } from "../models/Produto/use-cases/UpdateProduto.use-case";
 import { ExcluirProdutoUseCase } from "../models/Produto/use-cases/ExcluirProduto.use-case";
 import { AuthRequest } from "../middlewares/authMiddleware";
+import { ICategoriaRepository } from "../models/Categoria/repositories/ICategoriaRepository";
 
 export class ProdutoController
 {
-    constructor(private produtoRepository: IProdutoRepository){}
+    constructor(
+        private produtoRepository: IProdutoRepository,
+        private categoriaRepository: ICategoriaRepository
+    ){}
 
     async findAll(req: Request, res: Response): Promise<Response>
     {
@@ -61,11 +65,16 @@ export class ProdutoController
             const dto = new CreateProdutoDto(req.body)
             dto.criado_por = Number(req.usuarioId)
 
-            if(dto.qtde_estoque < 0) return res.status(400).json({ message: "Quantidade de estoque não pode ser negativo"})
-            if(!dto.preco_unitario) return res.status(400).json({ message: "Preço unitário é obrigatório"})
-            if(dto.preco_unitario < 0) return res.status(400).json({ message: "Preço unitário não pode ser negativo"})
+            if(dto.estoque_atual < 0) return res.status(400).json({ message: "Quantidade de estoque não pode ser negativo"})
+            if(!dto.preco_custo) return res.status(400).json({ message: "Preço de custo é obrigatório"})
+            if(!dto.preco_venda) return res.status(400).json({ message: "Preço de venda é obrigatório"})
+            if(dto.preco_custo < 0) return res.status(400).json({ message: "Preço de custo não pode ser negativo"})
+            if(dto.preco_venda < 0) return res.status(400).json({ message: "Preço de venda não pode ser negativo"})
 
-            const useCase = new CreateProdutoUseCase(this.produtoRepository)
+            const useCase = new CreateProdutoUseCase(
+                this.produtoRepository,
+                this.categoriaRepository
+            )
 
             const produto = await useCase.execute(dto)
 
