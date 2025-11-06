@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize"
 import { sequelize } from "../../../config/database"
-import { ProdutoModel } from "../../Produto/repositories/ProdutoModel"
+import { VendaEnumStatus } from "../entity/Venda"
 
 export interface VendaModelAttributes
 {
@@ -8,6 +8,8 @@ export interface VendaModelAttributes
     id_produto: number
     qtde: number
     total?: number
+    referencia?: string
+    status?: string
     criado_por?: number
     criado_em?: Date
     alterado_em?: Date 
@@ -20,6 +22,8 @@ export class VendaModel extends Model<VendaModelAttributes> implements VendaMode
     public id_produto!: number
     public qtde!: number
     public total!: number
+    public referencia!: string
+    public status!: string
     public criado_por!: number
     public readonly criado_em!: Date
     public readonly alterado_em!: Date
@@ -60,6 +64,16 @@ VendaModel.init(
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
             defaultValue: 0
+        },
+        referencia:
+        {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        status:
+        {
+            type: DataTypes.ENUM(...Object.values(VendaEnumStatus)),
+            defaultValue: VendaEnumStatus.Pendente
         },
         criado_por: 
         {

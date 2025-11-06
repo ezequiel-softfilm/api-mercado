@@ -18,6 +18,8 @@ export class CreateVendaUseCase
         
         const venda = new Venda(dto)
         venda.total = dto.qtde * produto.preco_venda
+        venda.referencia = crypto.randomUUID()
+        
         const newVenda = await this.vendaRepository.create(venda)
         
         const novoEstoque = produto.estoque_atual - dto.qtde

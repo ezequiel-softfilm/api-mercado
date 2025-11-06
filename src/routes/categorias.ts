@@ -13,7 +13,7 @@ router.use(authMiddleware)
 router.get("/", (req, res) => categoriaController.findAll(req, res))
 router.get("/:id", (req, res) => categoriaController.findOne(req, res))
 router.post("/", (req, res) => categoriaController.create(req, res))
-router.get("/:id", (req, res) => categoriaController.update(req, res))
-router.get("/:id", (req, res) => categoriaController.excluir(req, res))
+router.put("/:id", (req, res) => categoriaController.update(req, res))
+router.delete("/:id", (req, res) => categoriaController.excluir(req, res))
 
 export default router

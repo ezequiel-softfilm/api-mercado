@@ -1,4 +1,4 @@
-import { Venda } from "../entity/Venda";
+import { Venda, VendaEnumStatus } from "../entity/Venda";
 import { IVendaRepository } from "./IVendaRepository";
 import { VendaModel } from "./VendaModel";
 
@@ -27,8 +27,10 @@ export class VendaRepository implements IVendaRepository
             id_produto: venda.id_produto,
             qtde: venda.qtde,
             total: venda.total,
+            referencia: venda.referencia,
+            status: VendaEnumStatus.Pendente,
             criado_por: venda.criado_por
-        })
+        })  
 
         return newVenda
     }

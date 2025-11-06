@@ -6,6 +6,7 @@ import { CreateVendaDto } from "../models/Venda/dto/create-venda.dto";
 import { CreateVendaUseCase } from "../models/Venda/use-cases/CreateVenda.use-case";
 import { IProdutoRepository } from "../models/Produto/repositories/IProdutoRepository";
 import { AuthRequest } from "../middlewares/authMiddleware";
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 export class VendaController
 {
@@ -58,6 +59,9 @@ export class VendaController
 
     async create(req: AuthRequest, res: Response): Promise<Response>
     {
+        const MERCADO_PAGO_TOKEN = String(process.env.MERCADO_PAGO_TOKEN)
+        const client = new MercadoPagoConfig({ accessToken: MERCADO_PAGO_TOKEN});
+
         try
         {
             const dto = new CreateVendaDto(req.body)
@@ -72,10 +76,33 @@ export class VendaController
 
             const venda = await useCase.execute(dto)
 
+            const preference = new Preference(client);
+
+            const preco_total = Number(venda.total)
+
+            const preferenceData = await preference.create({
+                body: {
+                    items: [
+                        {
+                            id: String(venda.id),
+                            title: "Produto",
+                            quantity: dto.qtde,
+                            unit_price: preco_total
+                        },
+                    ],
+                },
+            });
+
+            const dados_pagamento = {
+                id: preferenceData.id,
+                link: preferenceData.init_point,
+            };
+
             return res.status(201).json(
             {
                 message: "Venda realizada com sucesso.",
-                data: venda
+                data: venda,
+                pagamento: dados_pagamento
             })
 
         }
