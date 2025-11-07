@@ -21,7 +21,7 @@ export class CreateVendaUseCase
         venda.referencia = crypto.randomUUID()
         
         const newVenda = await this.vendaRepository.create(venda)
-        
+
         const novoEstoque = produto.estoque_atual - dto.qtde
         await this.produtoRepository.update(dto.id_produto, { estoque_atual: novoEstoque })
 
